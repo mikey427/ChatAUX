@@ -1,25 +1,25 @@
 {
   "name": "dailyreflect",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "DailyReflect monorepo - personal reflection and journaling application",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev:backend": "npm run dev --workspace=backend",
+    "build:backend": "npm run build --workspace=backend",
+    "start:backend": "npm run start --workspace=backend"
   },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "@prisma/client": "^6.15.0",
-    "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2"
-  },
   "devDependencies": {
-    "@types/express": "^5.0.3",
-    "@types/node": "^24.3.1",
+    "nodemon": "^3.1.10",
     "prisma": "^6.15.0",
-    "tsx": "^4.20.5",
-    "typescript": "^5.9.2"
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0"
   }
 }
