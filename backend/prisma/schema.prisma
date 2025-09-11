@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -15,34 +14,12 @@ datasource db {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  email    String   @unique
-  password String
-  name     String?
-  entries  Entry[]
-  memories Memory[]
-}
-
-model Entry {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-}
-
-model Memory {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-
-  @@index([userId])
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  password    String
+  name        String?
+  spotifyId   String?  @unique
+  spotifyData Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
