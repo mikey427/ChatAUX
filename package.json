@@ -1,7 +1,7 @@
 {
-  "name": "dailyreflect",
+  "name": "ChatAUX",
   "version": "1.0.0",
-  "description": "DailyReflect monorepo - personal reflection and journaling application",
+  "description": "ChatAUX monorepo - AI Playlist Generator",
   "private": true,
   "scripts": {
     "dev:backend": "npm run dev --workspace=backend",
@@ -21,5 +21,9 @@
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0"
+  },
+  "dependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "bcrypt": "^6.0.0"
   }
 }
