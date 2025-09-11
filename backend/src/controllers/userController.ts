@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import { generateToken } from "../jwt.js";
 
@@ -8,6 +8,23 @@ const prisma = new PrismaClient();
 
 export async function login(req: Request, res: Response) {
   const { email, password } = req.body;
+  if (email == "" || email == null || password == "" || password == null) {
+    res.status(401).json({ error: "Invalid email or password" });
+  }
+  const user = await prisma.user.findUnique({
+    where: { email: email },
+  });
+
+  const isValidUser = user !== null;
+  const isValidPassword = user
+    ? await bcrypt.compare(password, user.password)
+    : false;
+
+  if (isValidUser && isValidPassword) {
+    res.json({ message: "Login successful" });
+  } else {
+    res.status(401).json({ error: "Invalid email or password" });
+  }
 
   //   const user = await getUser(username)
 }
@@ -18,7 +35,7 @@ export async function register(req: Request, res: Response) {
   bcrypt.hash(
     password,
     saltRounds,
-    async (err: Error | undefined, hash: string) => {
+    async (err: Error | null, hash: string | undefined) => {
       if (err) {
         // Handle error
         console.error("Error hashing password:", err);
@@ -45,7 +62,7 @@ export async function register(req: Request, res: Response) {
       const newUser = await prisma.user.create({
         data: {
           email,
-          password: hash,
+          password: hash || "",
         },
       });
 
