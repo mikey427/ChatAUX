@@ -23,7 +23,10 @@ export async function login(req: Request, res: Response) {
       : false;
 
     if (isValidUser && isValidPassword) {
-      const jwt = await generateToken(user.email);
+      const jwt = await generateToken({
+        id: String(user.id),
+        email: user.email,
+      });
       res.cookie("token", jwt, {
         maxAge: 900000,
         httpOnly: false, // TODO: Update this to true for prod
@@ -49,55 +52,42 @@ export async function register(req: Request, res: Response) {
     return;
   }
   try {
-    // hash password
-    await bcrypt.hash(
-      password,
-      saltRounds,
-      async (err: Error | null, hash: string | undefined) => {
-        if (err) {
-          // Handle error
-          console.error("Error hashing password:", err);
-          res.status(500).send("Internal server error");
-          return;
-        }
+    const hash = await bcrypt.hash(password, saltRounds);
+    console.log("Hashed password:", hash);
 
-        console.log("Hashed password:", hash);
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email,
-          },
-        });
+    if (user) {
+      // User already exists
+      console.log("User already exists:", user);
+      res.status(409).send("User already exists");
+      return;
+    }
 
-        if (user) {
-          // User already exists
-          console.log("User already exists:", user);
-          res.status(409).send("User already exists");
-          return;
-        }
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        password: hash || "",
+      },
+    });
 
-        const newUser = await prisma.user.create({
-          data: {
-            email,
-            password: hash || "",
-          },
-        });
-
-        const jwt = await generateToken(newUser.email);
-
-        res.cookie("token", jwt, {
-          maxAge: 900000,
-          httpOnly: false, // TODO: Update this to true for prod
-          secure: true,
-        });
-        res
-          .status(201)
-          .json({
-            success: true,
-            user: { id: newUser.id, email: newUser.email },
-          });
-      }
-    );
+    const jwt = generateToken({
+      id: String(newUser.id),
+      email: newUser.email,
+    });
+    res.cookie("token", jwt, {
+      maxAge: 900000,
+      httpOnly: false, // TODO: Update this to true for prod
+      secure: true,
+    });
+    res.status(201).json({
+      success: true,
+      user: { id: newUser.id, email: newUser.email },
+    });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }

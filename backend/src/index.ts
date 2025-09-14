@@ -1,8 +1,10 @@
 import express from "express";
+import dotenv from "dotenv";
 import { register, login } from "./controllers/userController.js";
 
 console.log("Starting server...");
 
+dotenv.config();
 const app = express();
 app.use(express.json());
 const port = 3000;

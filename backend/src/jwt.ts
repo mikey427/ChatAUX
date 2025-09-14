@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
 
-export async function generateToken(userEmail: string) {
+export function generateToken(user: { id: string; email: string }) {
   const token = jwt.sign(
-    { email: userEmail },
+    { id: user.id, email: user.email },
     process.env.JWT_SECRET as string,
     {
       expiresIn: "2h",
@@ -11,7 +11,7 @@ export async function generateToken(userEmail: string) {
   return token;
 }
 
-export async function verifyToken(token: string) {
+export function verifyToken(token: string) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
     return decoded;
