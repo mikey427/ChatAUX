@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
-import { generateToken } from "../jwt.js";
+import { generateToken, verifyToken } from "../jwt.js";
 
 const saltRounds = 12;
 const prisma = new PrismaClient();
@@ -30,7 +30,8 @@ export async function login(req: Request, res: Response) {
       res.cookie("token", jwt, {
         maxAge: 900000,
         httpOnly: false, // TODO: Update this to true for prod
-        secure: true,
+        secure: false, // Set to true only in production with HTTPS
+        sameSite: 'lax'
       });
       res
         .status(200)
@@ -82,7 +83,7 @@ export async function register(req: Request, res: Response) {
     res.cookie("token", jwt, {
       maxAge: 900000,
       httpOnly: false, // TODO: Update this to true for prod
-      secure: true,
+      secure: false, // Set to true only in production with HTTPS
     });
     res.status(201).json({
       success: true,
@@ -91,4 +92,33 @@ export async function register(req: Request, res: Response) {
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
+}
+
+export async function getCurrentUser(req: Request, res: Response) {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.status(401).json({ error: "No token provided" });
+  }
+
+  const decoded = verifyToken(token);
+  if (!decoded) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+
+  // Refresh the token/cookie to extend session
+  const newToken = generateToken({ id: decoded.id, email: decoded.email });
+  res.cookie("token", newToken, {
+    maxAge: 900000,
+    httpOnly: false, // TODO: Update this to true for prod
+    secure: false, // Set to true only in production with HTTPS
+    sameSite: 'lax'
+  });
+
+  res.status(200).json({
+    user: {
+      id: decoded.id,
+      email: decoded.email,
+    },
+  });
 }

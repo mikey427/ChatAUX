@@ -1,5 +1,8 @@
 import "./App.css";
-import { Link, Route, Switch } from "wouter";
+import { Link, Route } from "wouter";
+import Home from "./components/Home";
+import { Login } from "./components/Login";
+import { Register } from "./components/Register";
 
 function App() {
   return (
@@ -7,13 +10,12 @@ function App() {
       <Link href="/users/1">Profile</Link>
 
       <Route path="/" component={Home} />
-      <Route path="/login" component={Login} />
-      <Route path="/register" component={Register} />
-
-      {/* 
-      Routes below are matched excsssively -
-      the first matched route gets rendered
-    */}
+      <Route path="/login">
+        <Login />
+      </Route>
+      <Route path="/register">
+        <Register />
+      </Route>
     </>
   );
 }
