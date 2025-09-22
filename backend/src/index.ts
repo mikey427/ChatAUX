@@ -5,6 +5,7 @@ import {
   login,
   getCurrentUser,
 } from "./controllers/userController.js";
+import { authMiddleware } from "./middleware/auth.js";
 import type { Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -28,9 +29,10 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
-app.get("/api/user", getCurrentUser);
+app.get("/api/user", authMiddleware, getCurrentUser);
 app.post("/api/login", login);
 app.post("/api/register", register);
+app.post("/api/generate-playlist", authMiddleware);
 
 app.listen(port, () => {
   console.log(`ChatAUX app listening on port ${port}`);

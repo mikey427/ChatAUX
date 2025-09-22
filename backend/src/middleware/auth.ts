@@ -6,7 +6,7 @@ interface User {
   email: string;
 }
 
-export function authenticateJWT(
+export function authMiddleware(
   req: Request,
   res: Response,
   next: NextFunction
