@@ -31,7 +31,7 @@ export async function login(req: Request, res: Response) {
         maxAge: 900000,
         httpOnly: false, // TODO: Update this to true for prod
         secure: false, // Set to true only in production with HTTPS
-        sameSite: 'lax'
+        sameSite: "lax",
       });
       res
         .status(200)
@@ -112,7 +112,7 @@ export async function getCurrentUser(req: Request, res: Response) {
     maxAge: 900000,
     httpOnly: false, // TODO: Update this to true for prod
     secure: false, // Set to true only in production with HTTPS
-    sameSite: 'lax'
+    sameSite: "lax",
   });
 
   res.status(200).json({

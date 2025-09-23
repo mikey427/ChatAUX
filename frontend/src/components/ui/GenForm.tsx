@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from "react";
 import InputLabeled from "./inputLabeled";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/shadcn/slider";
+import { Label } from "@/components/ui/shadcn/label";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+} from "@/components/ui/shadcn/card";
+import { Button } from "@/components/ui/shadcn/button";
+import { Badge } from "@/components/ui/shadcn/badge";
+import { Checkbox } from "@/components/ui/shadcn/checkbox";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/shadcn/select";
 
 type Props = {};
 
@@ -42,6 +42,8 @@ export default function GenForm({}: Props) {
       recent: false,
       top: false,
     },
+    artists: ["Tame Impala", "Arctic Monkeys"],
+    genres: ["Indie Rock", "Electronic"],
   });
 
   const updateFormData = (path: string, value: any) => {
@@ -329,10 +331,22 @@ export default function GenForm({}: Props) {
                 </div>
 
                 <div>
-                  <Label>Seed Artists</Label>
+                  <Label>Artists</Label>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    <Badge variant="secondary">Tame Impala ×</Badge>
-                    <Badge variant="secondary">Arctic Monkeys ×</Badge>
+                    {formData.artists.map((artist) => (
+                      <Badge
+                        key={artist}
+                        variant="secondary"
+                        onClick={() =>
+                          updateFormData(
+                            "artists",
+                            formData.artists.filter((a) => a !== artist)
+                          )
+                        }
+                      >
+                        {artist} ×
+                      </Badge>
+                    ))}
                     <Button variant="outline" size="sm">
                       + Add Artist
                     </Button>
