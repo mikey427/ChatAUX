@@ -1,3 +1,5 @@
+import type { Request, Response } from "express";
+
 type CreatePlaylistReq = {
   userId: number;
   name: string;
@@ -19,7 +21,13 @@ type AudioFeatures = {
   acousticness: string;
 };
 
-async function createPlaylist(req: Request, res: Response) {
+export async function createPlaylist(req: Request, res: Response) {
   try {
-  } catch (error) {}
+    const body: CreatePlaylistReq = req.body;
+
+    // create playlist logic
+  } catch (error) {
+    console.error("Error creating playlist:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 }

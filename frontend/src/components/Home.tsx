@@ -1,37 +1,29 @@
 import React, { useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/shadcn/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/shadcn/card";
 import { Button } from "@/components/ui/shadcn/button";
 import GenForm from "./ui/GenForm";
+import { useAuth } from "../providers/authProvider";
 
 type Props = {};
 
 export default function Home({}: Props) {
-  useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await fetch("http://localhost:3000/api/user", {
-          method: "GET",
-          credentials: "include",
-        });
-        if (!res.ok) {
-          window.location.href = "/login";
-        }
-      } catch (error) {
-        console.error("Error checking auth:", error);
-        window.location.href = "/login";
-      }
-    }
-    checkAuth();
-  }, []);
+  const { user, loading, isAuthenticated, logout } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  if (!isAuthenticated) {
+    window.location.href = "/login";
+    return null;
+  }
 
   async function handleSignOut() {
-    const res = await fetch("http://localhost:3000/api/logout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    console.log("Signed out", res);
+    await logout();
     window.location.href = "/login";
   }
   return (
