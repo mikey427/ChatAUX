@@ -5,8 +5,8 @@ import {
   login,
   getCurrentUser,
   logout,
-  linkSpotifyAccount,
-  unlinkSpotifyAccount,
+  // linkSpotifyAccount,
+  // unlinkSpotifyAccount,
 } from "./controllers/authController.js";
 import { authMiddleware } from "./middleware/auth.js";
 import type { Request, Response } from "express";
@@ -38,9 +38,9 @@ app.get("/api/user", authMiddleware, getCurrentUser);
 app.post("/api/login", login);
 app.post("/api/register", register);
 app.post("/api/logout", authMiddleware, logout);
-app.post("/api/spotify/link", authMiddleware, linkSpotifyAccount);
-app.post("/api/spotify/callback", authMiddleware, callbackSpotify);
-app.post("/api/spotify/unlink", authMiddleware, unlinkSpotifyAccount);
+// app.post("/api/spotify/link", authMiddleware, linkSpotifyAccount);
+// app.post("/api/spotify/callback", authMiddleware, callbackSpotify);
+// app.post("/api/spotify/unlink", authMiddleware, unlinkSpotifyAccount);
 
 // Playlists
 app.post("/api/generate-playlist", authMiddleware, createPlaylist);
