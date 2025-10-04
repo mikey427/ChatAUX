@@ -5,8 +5,6 @@ import {
   login,
   getCurrentUser,
   logout,
-  // linkSpotifyAccount,
-  // unlinkSpotifyAccount,
 } from "./controllers/authController.js";
 import { authMiddleware } from "./middleware/auth.js";
 import type { Request, Response } from "express";
@@ -18,6 +16,7 @@ import session from "express-session";
 import { PrismaClient } from "@prisma/client";
 import "./config/passport.js";
 import crypto from "crypto";
+import { spotifyAuthCallback } from "@controllers/spotifyController.js";
 
 console.log("Starting server...");
 
@@ -44,7 +43,6 @@ app.use(
 const port = 3000;
 
 // Prisma Client
-
 export const prisma = new PrismaClient();
 
 app.get("/", (req: Request, res: Response) => {
@@ -61,15 +59,17 @@ app.post("/api/logout", authMiddleware, logout);
 // app.post("/api/spotify/callback", authMiddleware, callbackSpotify);
 // app.post("/api/spotify/unlink", authMiddleware, unlinkSpotifyAccount);
 
-app.get("/auth/spotify", passport.authenticate("spotify"));
+app.get(
+  "/auth/spotify",
+  passport.authenticate("spotify", {
+    scope: ["user-read-email", "user-read-private"],
+  })
+);
 
 app.get(
   "/auth/spotify/callback",
   passport.authenticate("spotify", { failureRedirect: "/login" }),
-  function (req, res) {
-    // Successful authentication, redirect home.
-    res.redirect("/");
-  }
+  spotifyAuthCallback
 );
 
 // Playlists

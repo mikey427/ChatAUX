@@ -22,10 +22,10 @@ passport.use(
       done: any
     ) {
       try {
-        console.log("accessToken:", accessToken);
-        console.log("refreshToken:", refreshToken);
-        console.log("expires_in:", expires_in);
-        console.log("profile:", profile);
+        // console.log("accessToken:", accessToken);
+        // console.log("refreshToken:", refreshToken);
+        // console.log("expires_in:", expires_in);
+        // console.log("profile:", profile);
 
         return done(null, {
           profile,
@@ -49,7 +49,7 @@ passport.serializeUser((user: any, done) => {
 passport.deserializeUser(async (username: string, done) => {
   try {
     // Look up the user by email and include their Spotify data
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: { spotifyData: { username: username } },
       include: { spotifyData: true },
     });

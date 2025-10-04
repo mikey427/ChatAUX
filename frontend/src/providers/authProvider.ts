@@ -41,8 +41,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const response = await fetch("/api/user", { credentials: "include" });
       if (response.ok) {
-        const userData: User = await response.json();
-        setUser(userData);
+        const data = await response.json();
+        setUser(data.user);
       }
     } catch (error) {
       console.log("Not authenticated");
@@ -62,8 +62,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
 
       if (response.ok) {
-        const userData: User = await response.json();
-        setUser(userData);
+        const data = await response.json();
+        setUser(data.user);
         return { success: true };
       }
       return { success: false, error: "Login failed" };

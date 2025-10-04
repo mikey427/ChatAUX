@@ -18,10 +18,10 @@ export default function Home({}: Props) {
   if (loading) {
     return <div>Loading...</div>;
   }
-  if (!isAuthenticated) {
-    window.location.href = "/login";
-    return null;
-  }
+  // if (!isAuthenticated) {
+  //   window.location.href = "/login";
+  //   return null;
+  // } // No longer needed since adding protected routes component
 
   async function handleSignOut() {
     await logout();

@@ -1,11 +1,9 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../index.js";
 import { generateToken, verifyToken } from "../jwt.js";
 
 const saltRounds = 12;
-const prisma = new PrismaClient();
-
 export async function login(req: Request, res: Response) {
   const { email, password } = req.body;
   if (email == "" || email == null || password == "" || password == null) {

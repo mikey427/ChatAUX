@@ -4,11 +4,16 @@ import Home from "./components/Home";
 import { Login } from "./components/Login";
 import { Register } from "./components/Register";
 import { Profile } from "./components/Profile";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 function App() {
   return (
     <>
-      <Route path="/" component={Home} />
+      <Route path="/">
+        <ProtectedRoute>
+          <Home />
+        </ProtectedRoute>
+      </Route>
       <Route path="/login">
         <Login />
       </Route>
@@ -16,7 +21,9 @@ function App() {
         <Register />
       </Route>
       <Route path="/profile">
-        <Profile />
+        <ProtectedRoute>
+          <Profile />
+        </ProtectedRoute>
       </Route>
     </>
   );
