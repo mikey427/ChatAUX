@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
 import { prisma } from "../index.js";
-import { verifyToken } from "../jwt.js";
 
 export async function linkSpotifyAccount(req: Request, res: Response) {
   // Linking Spotify account
@@ -11,23 +10,23 @@ export async function unlinkSpotifyAccount(req: Request, res: Response) {
 }
 
 export async function spotifyAuthCallback(req: Request, res: Response) {
-  console.log("=== Spotify Callback Debug ===");
-  console.log("req.cookies:", req.cookies);
-  console.log("req.user:", req.user);
-  console.log("req.headers.cookie:", req.headers.cookie);
-
   const { accessToken, refreshToken, expires_in, profile } = req.user as any;
-  const token = req.cookies.token;
-  if (!token) {
-    console.log("No token found in cookies!");
+
+  // Decode userId from OAuth state parameter
+  const encodedState = req.query.state as string;
+  if (!encodedState) {
+    console.error("No state parameter in OAuth callback");
+    return res.redirect("http://localhost:5173/login?error=no_state");
+  }
+
+  const decodedState = JSON.parse(Buffer.from(encodedState, 'base64').toString());
+  const userId = decodedState.userId;
+
+  if (!userId) {
+    console.error("No userId found in decoded state");
     return res.redirect("http://localhost:5173/login?error=not_authenticated");
   }
-  const decoded = verifyToken(token);
-  if (!decoded) {
-    return res.status(401).json({ error: "Invalid token" });
-  }
-  const userId = decoded.id;
-  // Calculate expiration date
+
   const expiresAt = new Date(Date.now() + expires_in * 1000);
   try {
     await prisma.spotifyData.upsert({

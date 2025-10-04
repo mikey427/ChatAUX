@@ -7,7 +7,9 @@ build/
 */dist/
 */build/
 *.js.map
-*.d.ts
+# Ignore generated declaration files from build, but keep custom type definitions in src/
+dist/**/*.d.ts
+build/**/*.d.ts
 *.d.ts.map
 dist-ssr
 

@@ -61,14 +61,28 @@ app.post("/api/logout", authMiddleware, logout);
 
 app.get(
   "/auth/spotify",
-  passport.authenticate("spotify", {
-    scope: ["user-read-email", "user-read-private"],
-  })
+  authMiddleware,
+  (req: Request, res: Response, next: any) => {
+    // Encode userId in OAuth state parameter to survive redirect flow
+    const authenticatedUser = (req as any).user;
+    const encodedState = Buffer.from(
+      JSON.stringify({ userId: authenticatedUser.id })
+    ).toString('base64');
+
+    passport.authenticate("spotify", {
+      scope: ["user-read-email", "user-read-private"],
+      state: encodedState,
+      session: false,
+    })(req, res, next);
+  }
 );
 
 app.get(
   "/auth/spotify/callback",
-  passport.authenticate("spotify", { failureRedirect: "/login" }),
+  passport.authenticate("spotify", {
+    failureRedirect: "/login",
+    session: false,
+  }),
   spotifyAuthCallback
 );
 

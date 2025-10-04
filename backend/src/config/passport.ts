@@ -22,11 +22,6 @@ passport.use(
       done: any
     ) {
       try {
-        // console.log("accessToken:", accessToken);
-        // console.log("refreshToken:", refreshToken);
-        // console.log("expires_in:", expires_in);
-        // console.log("profile:", profile);
-
         return done(null, {
           profile,
           accessToken,
@@ -34,7 +29,7 @@ passport.use(
           expires_in,
         });
       } catch (error) {
-        console.error("Error linking Spotify account:", error);
+        console.error("Error in Spotify OAuth strategy:", error);
         return done(error, null);
       }
     }
