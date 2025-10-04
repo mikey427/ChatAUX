@@ -29,6 +29,7 @@ model SpotifyData {
   accessToken  String
   refreshToken String
   expiresAt    DateTime
+  username     String
   userId       Int      @unique
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())

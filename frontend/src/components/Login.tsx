@@ -10,27 +10,25 @@ import {
 import { Input } from "@/components/ui/shadcn/input";
 import { Label } from "@/components/ui/shadcn/label";
 import { useState } from "react";
+import { useAuth } from "@/providers/authProvider";
 
 export function Login({ className, ...props }: React.ComponentProps<"div">) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(""); // TODO: Hook this up later
+  const { login } = useAuth();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    // Handle login logic here
-    console.log("Logging in with", { email, password });
+    setError("");
 
-    const res = await fetch("http://localhost:3000/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ email, password }),
-    });
+    const result = await login(email, password);
 
-    console.log("Logged in", res);
-    window.location.href = "/";
+    if (result.success) {
+      window.location.href = "/";
+    } else {
+      setError(result.error || "Login failed");
+    }
   }
 
   return (

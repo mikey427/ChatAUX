@@ -1,4 +1,10 @@
-import { createContext, useState, useEffect, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
 import React from "react";
 
 interface User {
@@ -47,6 +53,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = async (email: string, password: string) => {
     try {
+      console.log(email, password);
       const response = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
