@@ -4,7 +4,7 @@ import { Button } from "./ui/shadcn/button";
 
 type Props = {};
 
-export default function Profile({}: Props) {
+export function Profile({}: Props) {
   return (
     <div>
       <Label>Link Spotify</Label>

@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/shadcn/button";
 import GenForm from "./ui/GenForm";
 import { useAuth } from "../providers/authProvider";
+import { Link } from "wouter";
 
 type Props = {};
 
@@ -36,6 +37,9 @@ export default function Home({}: Props) {
             Create the perfect playlist with AI-powered recommendations
           </p>
         </div>
+        <Link to="/profile">
+          <Button variant="outline">Profile</Button>
+        </Link>
         <Button variant="outline" onClick={handleSignOut}>
           Sign Out
         </Button>
