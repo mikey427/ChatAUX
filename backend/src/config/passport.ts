@@ -46,7 +46,20 @@ passport.deserializeUser(async (username: string, done) => {
     // Look up the user by email and include their Spotify data
     const user = await prisma.user.findFirst({
       where: { spotifyData: { username: username } },
-      include: { spotifyData: true },
+      include: {
+        spotifyData: {
+          select: {
+            id: true,
+            spotifyId: true,
+            username: true,
+            expiresAt: true,
+            createdAt: true,
+            updatedAt: true,
+            userId: true,
+            // accessToken and refreshToken are NOT selected
+          },
+        },
+      },
     });
 
     if (user) {

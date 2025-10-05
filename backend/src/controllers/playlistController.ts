@@ -124,7 +124,19 @@ export async function createPlaylist(req: Request, res: Response) {
 
     const user = await prisma.user.findUnique({
       where: { id: body.userId },
-      include: { spotifyData: true },
+      include: {
+        spotifyData: {
+          select: {
+            id: true,
+            spotifyId: true,
+            username: true,
+            expiresAt: true,
+            createdAt: true,
+            updatedAt: true,
+            userId: true,
+          },
+        },
+      },
     });
 
     const userAccessToken = await getValidSpotifyToken(body.userId);
