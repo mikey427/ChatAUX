@@ -31,7 +31,6 @@ app.use(
 );
 
 app.use(cookieParser());
-const fallbackSecret = crypto.randomBytes(32).toString("hex");
 app.use(
   session({
     secret: process.env.SESSION_SECRET!,
@@ -67,10 +66,10 @@ app.get(
     const authenticatedUser = (req as any).user;
     const encodedState = Buffer.from(
       JSON.stringify({ userId: authenticatedUser.id })
-    ).toString('base64');
+    ).toString("base64");
 
     passport.authenticate("spotify", {
-      scope: ["user-read-email", "user-read-private"],
+      scope: ["user-read-email", "user-read-private", "user-library-read"],
       state: encodedState,
       session: false,
     })(req, res, next);

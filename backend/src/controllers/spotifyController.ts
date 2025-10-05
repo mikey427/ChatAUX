@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { prisma } from "../index.js";
+import { calculateSpotifyTokenExpiry } from "@utils/spotify.js";
 
 export async function linkSpotifyAccount(req: Request, res: Response) {
   // Linking Spotify account
@@ -19,7 +20,9 @@ export async function spotifyAuthCallback(req: Request, res: Response) {
     return res.redirect("http://localhost:5173/login?error=no_state");
   }
 
-  const decodedState = JSON.parse(Buffer.from(encodedState, 'base64').toString());
+  const decodedState = JSON.parse(
+    Buffer.from(encodedState, "base64").toString()
+  );
   const userId = decodedState.userId;
 
   if (!userId) {
@@ -27,7 +30,7 @@ export async function spotifyAuthCallback(req: Request, res: Response) {
     return res.redirect("http://localhost:5173/login?error=not_authenticated");
   }
 
-  const expiresAt = new Date(Date.now() + expires_in * 1000);
+  const expiresAt = calculateSpotifyTokenExpiry(expires_in);
   try {
     await prisma.spotifyData.upsert({
       where: { userId: Number(userId) },

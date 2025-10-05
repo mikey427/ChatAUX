@@ -1,0 +1,85 @@
+import { prisma } from "index.js";
+
+type SpotifyTokenResponse = {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  refresh_token?: string;
+  scope: string;
+};
+
+export function calculateSpotifyTokenExpiry(expiresInSeconds: number): Date {
+  return new Date(Date.now() + expiresInSeconds * 1000);
+}
+
+export async function getValidSpotifyToken(userId: number): Promise<string> {
+  // 1. Fetch user's access token + expiresAt from database
+
+  const user = await prisma.user.findFirst({
+    where: {
+      id: userId,
+    },
+    include: {
+      spotifyData: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // 2. Check if expired
+  if (
+    user?.spotifyData?.expiresAt == undefined ||
+    user?.spotifyData?.expiresAt == null
+  ) {
+    throw new Error("Missing Spotify token data");
+  }
+  const expired = user.spotifyData.expiresAt < new Date();
+  // 3. If expired, use refresh token to get new one, update DB
+  if (!expired) {
+    if (!user.spotifyData?.accessToken) {
+      throw new Error("Missing Spotify access token");
+    }
+    return user.spotifyData.accessToken;
+  }
+
+  if (!process.env.SPOTIFY_CLIENT_SECRET) {
+    throw new Error("Spotify Client Secret missing from .env");
+  }
+  const response = await fetch("https://accounts.spotify.com/api/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: user.spotifyData.refreshToken,
+      client_id: process.env.SPOTIFY_CLIENT_ID!,
+      client_secret: process.env.SPOTIFY_CLIENT_SECRET!,
+    }),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to refresh token: ${response.status}`);
+  }
+  const data = (await response.json()) as SpotifyTokenResponse;
+  const newSpotifyData = {
+    accessToken: data.access_token,
+    expiresAt: calculateSpotifyTokenExpiry(data.expires_in),
+    ...(data.refresh_token && { refreshToken: data.refresh_token }),
+  };
+
+  const userWithUpdateSpotifyData = await prisma.spotifyData.update({
+    where: { userId: userId },
+    data: {
+      accessToken: newSpotifyData.accessToken,
+      expiresAt: newSpotifyData.expiresAt,
+      ...(newSpotifyData.refreshToken && {
+        refreshToken: newSpotifyData.refreshToken,
+      }),
+    },
+  });
+
+  // 4. Return valid access tokens
+  return data.access_token;
+}
