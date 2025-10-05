@@ -20,7 +20,17 @@ export async function getValidSpotifyToken(userId: number): Promise<string> {
       id: userId,
     },
     include: {
-      spotifyData: true,
+      spotifyData: {
+        select: {
+          id: true,
+          spotifyId: true,
+          username: true,
+          expiresAt: true,
+          createdAt: true,
+          updatedAt: true,
+          userId: true,
+        },
+      },
     },
   });
 
