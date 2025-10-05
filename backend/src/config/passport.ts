@@ -37,13 +37,11 @@ passport.use(
 );
 
 passport.serializeUser((user: any, done) => {
-  // Store the user's email to identify them later
   done(null, user.profile.username);
 });
 
 passport.deserializeUser(async (username: string, done) => {
   try {
-    // Look up the user by email and include their Spotify data
     const user = await prisma.user.findFirst({
       where: { spotifyData: { username: username } },
       include: {
@@ -56,7 +54,6 @@ passport.deserializeUser(async (username: string, done) => {
             createdAt: true,
             updatedAt: true,
             userId: true,
-            // accessToken and refreshToken are NOT selected
           },
         },
       },

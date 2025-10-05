@@ -62,7 +62,6 @@ app.get(
   "/auth/spotify",
   authMiddleware,
   (req: Request, res: Response, next: any) => {
-    // Encode userId in OAuth state parameter to survive redirect flow
     const authenticatedUser = (req as any).user;
     const encodedState = Buffer.from(
       JSON.stringify({ userId: authenticatedUser.id })

@@ -13,8 +13,6 @@ export function calculateSpotifyTokenExpiry(expiresInSeconds: number): Date {
 }
 
 export async function getValidSpotifyToken(userId: number): Promise<string> {
-  // 1. Fetch user's access token + expiresAt from database
-
   const user = await prisma.user.findFirst({
     where: {
       id: userId,
@@ -22,13 +20,9 @@ export async function getValidSpotifyToken(userId: number): Promise<string> {
     include: {
       spotifyData: {
         select: {
-          id: true,
-          spotifyId: true,
-          username: true,
+          accessToken: true,
+          refreshToken: true,
           expiresAt: true,
-          createdAt: true,
-          updatedAt: true,
-          userId: true,
         },
       },
     },
@@ -38,7 +32,6 @@ export async function getValidSpotifyToken(userId: number): Promise<string> {
     throw new Error("User not found");
   }
 
-  // 2. Check if expired
   if (
     user?.spotifyData?.expiresAt == undefined ||
     user?.spotifyData?.expiresAt == null
@@ -46,7 +39,6 @@ export async function getValidSpotifyToken(userId: number): Promise<string> {
     throw new Error("Missing Spotify token data");
   }
   const expired = user.spotifyData.expiresAt < new Date();
-  // 3. If expired, use refresh token to get new one, update DB
   if (!expired) {
     if (!user.spotifyData?.accessToken) {
       throw new Error("Missing Spotify access token");
