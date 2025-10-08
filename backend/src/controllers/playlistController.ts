@@ -152,7 +152,15 @@ export async function createPlaylist(req: Request, res: Response) {
   }
 }
 
-async function getUserLikedTracks(accessToken: string) {
+export async function testEndpoint(req: Request, res: Response) {
+  const user = (req as any).user;
+  if (!user || !user.id) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  // TODO: Implement pagination and move to dedicated function
+  const accessToken = await getValidSpotifyToken(Number(user?.id));
+  console.log("accessToken: ", accessToken);
   const limit = 50;
   const response = await fetch(
     `https://api.spotify.com/v1/me/tracks?limit=${limit}`,
@@ -172,6 +180,7 @@ async function getUserLikedTracks(accessToken: string) {
 
   const data = (await response.json()) as SpotifyLikedTracksResponse;
 
-  console.log(data);
+  console.log("data: ", data);
+  res.json(data.items);
   return data.items;
 }

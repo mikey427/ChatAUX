@@ -10,7 +10,10 @@ import { authMiddleware } from "./middleware/auth.js";
 import type { Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { createPlaylist } from "./controllers/playlistController.js";
+import {
+  createPlaylist,
+  testEndpoint,
+} from "./controllers/playlistController.js";
 import passport from "passport";
 import session from "express-session";
 import { PrismaClient } from "@prisma/client";
@@ -86,6 +89,8 @@ app.get(
 
 // Playlists
 app.post("/api/generate-playlist", authMiddleware, createPlaylist);
+
+app.get("/api/test-endpoint", authMiddleware, testEndpoint);
 
 app.listen(port, () => {
   console.log(`ChatAUX app listening on port ${port}`);
