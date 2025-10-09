@@ -161,6 +161,7 @@ export async function testEndpoint(req: Request, res: Response) {
   // TODO: Implement pagination and move to dedicated function
   const accessToken = await getValidSpotifyToken(Number(user?.id));
   console.log("accessToken: ", accessToken);
+  let likedTracks = [];
   const limit = 50;
   const response = await fetch(
     `https://api.spotify.com/v1/me/tracks?limit=${limit}`,
@@ -179,8 +180,17 @@ export async function testEndpoint(req: Request, res: Response) {
   }
 
   const data = (await response.json()) as SpotifyLikedTracksResponse;
+  likedTracks.push(data.items);
 
   console.log("data: ", data);
   res.json(data.items);
   return data.items;
 }
+
+// TODO: Refactor endpoint to use reusable Spotify API utilities
+// Architecture plan:
+// 1. Create makeSpotifyRequest() wrapper in services/ - handles rate limiting (429) with retry logic
+// 2. Create fetchAllPaginatedItems() in services/ - uses wrapper to handle pagination via 'next' URLs
+// 3. Keep token refresh logic in controller - controller catches 401, refreshes token via getValidSpotifyToken(), retries operation
+// 4. This endpoint becomes: get token → call pagination helper → return results
+export async function makeSpotifyRequest(url: string, accessToken: string) {}
