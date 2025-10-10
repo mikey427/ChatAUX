@@ -113,6 +113,16 @@ type SpotifyLikedTracksResponse = {
   }>;
 };
 
+type SpotifyPaginatedResponse<T> = {
+  href: string;
+  items: T[];
+  limit: number;
+  next: string | null;
+  offset: number;
+  previous: string | null;
+  total: number;
+};
+
 export async function createPlaylist(req: Request, res: Response) {
   try {
     const body: CreatePlaylistReq = req.body;
@@ -193,4 +203,31 @@ export async function testEndpoint(req: Request, res: Response) {
 // 2. Create fetchAllPaginatedItems() in services/ - uses wrapper to handle pagination via 'next' URLs
 // 3. Keep token refresh logic in controller - controller catches 401, refreshes token via getValidSpotifyToken(), retries operation
 // 4. This endpoint becomes: get token → call pagination helper → return results
-export async function makeSpotifyRequest(url: string, accessToken: string) {}
+
+// TODO: Implement backoff and retry logic
+// Need to pass in the response type to ensure correct typing for different endpoints
+async function makeSpotifyRequest<T>(url: string, token: string): Promise<T> {
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) throw new Error(`Spotify error: ${response.status}`);
+  return (await response.json()) as T;
+}
+
+async function fetchAllPaginatedItems<T>(
+  url: string,
+  token: string
+): Promise<T[]> {
+  const items: T[] = [];
+  let nextUrl: string | null = url;
+
+  while (nextUrl) {
+    const response: SpotifyPaginatedResponse<T> = await makeSpotifyRequest<
+      SpotifyPaginatedResponse<T>
+    >(nextUrl, token);
+    items.push(...response.items);
+    nextUrl = response.next;
+  }
+
+  return items;
+}
