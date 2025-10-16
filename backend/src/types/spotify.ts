@@ -98,3 +98,5 @@ export type SpotifyPaginatedResponse<T> = {
   previous: string | null;
   total: number;
 };
+
+export type SpotifyLikedTrackItem = SpotifyLikedTracksResponse["items"][number];

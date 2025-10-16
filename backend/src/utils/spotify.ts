@@ -1,10 +1,5 @@
 import { prisma } from "index.js";
-import type { Request, Response } from "express";
-import type {
-  SpotifyTokenResponse,
-  SpotifyPaginatedResponse,
-  SpotifyLikedTracksResponse,
-} from "types/spotify.js";
+import type { SpotifyTokenResponse } from "types/spotify.js";
 
 export function calculateSpotifyTokenExpiry(expiresInSeconds: number): Date {
   return new Date(Date.now() + expiresInSeconds * 1000);
@@ -82,39 +77,4 @@ export async function getValidSpotifyToken(userId: number): Promise<string> {
 
   // 4. Return valid access tokens
   return data.access_token;
-}
-
-export async function testEndpoint(req: Request, res: Response) {
-  const user = (req as any).user;
-  if (!user || !user.id) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  // TODO: Implement pagination and move to dedicated function
-  const accessToken = await getValidSpotifyToken(Number(user?.id));
-  console.log("accessToken: ", accessToken);
-  let likedTracks = [];
-  const limit = 50;
-  const response = await fetch(
-    `https://api.spotify.com/v1/me/tracks?limit=${limit}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    const errorBody = await response.json();
-    console.log("Spotify API Error:", errorBody);
-    throw new Error(`Failed to fetch liked tracks: ${response.status}`);
-  }
-
-  const data = (await response.json()) as SpotifyLikedTracksResponse;
-  likedTracks.push(data.items);
-
-  console.log("data: ", data);
-  res.json(data.items);
-  return data.items;
 }

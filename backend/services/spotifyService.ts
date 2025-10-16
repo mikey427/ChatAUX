@@ -2,35 +2,27 @@ import type { Request, Response } from "express";
 import type {
   SpotifyTokenResponse,
   SpotifyPaginatedResponse,
-  SpotifyLikedTracksResponse,
+  SpotifyLikedTrackItem,
 } from "types/spotify.js";
 
 export async function initialSpotifyUserDataSync() {}
 
 export async function reSyncSpotifyUserData(accessToken: string) {}
 
-export async function fetchUserLikedTracks(accessToken: string) {
+export async function fetchUserLikedTracks(accessToken: string): Promise<SpotifyLikedTrackItem[]> {
   console.log("accessToken: ", accessToken);
-  const response = await fetch("https://api.spotify.com/v1/me/tracks", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-  const data = await response.json();
-  console.log("data: ", data);
+  const limit = 50;
+  const url = `https://api.spotify.com/v1/me/tracks?limit=${limit}`;
+
+  const data = await fetchAllPaginatedItems<SpotifyLikedTrackItem>(
+    url,
+    accessToken
+  );
   return data;
 }
 
 export async function fetchUserRecentlyPlayed(accessToken: string) {}
 
-// Architecture plan:
-// 1. Create makeSpotifyRequest() wrapper in services/ - handles rate limiting (429) with retry logic
-// 2. Create fetchAllPaginatedItems() in services/ - uses wrapper to handle pagination via 'next' URLs
-// 3. Keep token refresh logic in controller - controller catches 401, refreshes token via getValidSpotifyToken(), retries operation
-// 4. This endpoint becomes: get token → call pagination helper → return results
-
-// TODO: Implement backoff and retry logic
-// Need to pass in the response type to ensure correct typing for different endpoints
 export async function makeSpotifyRequest<T>(
   url: string,
   token: string
@@ -46,9 +38,8 @@ export async function makeSpotifyRequest<T>(
           response.headers.get("Retry-After") || "2",
           10
         );
-        setTimeout(() => {
-          return makeSpotifyRequest(url, token);
-        }, retryAfter * 1000);
+        await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
+        return makeSpotifyRequest(url, token);
       case 401:
         throw new Error("Spotify's Complaint: Token expired");
       default:
